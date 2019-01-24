@@ -13,24 +13,11 @@
 })(this, function () {
   "use strict";
 
-  /*
-  * FileSaver.js
-  * A saveAs() FileSaver implementation.
-  *
-  * By Eli Grey, http://eligrey.com
-  *
-  * License : https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md (MIT)
-  * source  : http://purl.eligrey.com/github/FileSaver.js
-  */
-  // The one and only way of getting global scope in all environments
-  // https://stackoverflow.com/q/3277182/1008999
-  var _global = typeof window === 'object' && window.window === window ? window : typeof self === 'object' && self.self === self ? self : typeof global === 'object' && global.global === global ? global : void 0;
-
   function bom(blob, opts) {
     if (typeof opts === 'undefined') opts = {
       autoBom: false
     };else if (typeof opts !== 'object') {
-      console.warn('Depricated: Expected third argument to be a object');
+      console.warn('Deprecated: Expected third argument to be a object');
       opts = {
         autoBom: !opts
       };
@@ -81,12 +68,8 @@
     }
   }
 
-  var saveAs = _global.saveAs || ( // probably in some web worker
-  typeof window !== 'object' || window !== _global ? function saveAs() {}
-  /* noop */
-  // Use download attribute first if possible (#193 Lumia mobile)
-  : 'download' in HTMLAnchorElement.prototype ? function saveAs(blob, name, opts) {
-    var URL = _global.URL || _global.webkitURL;
+  var saveAs = 'download' in HTMLAnchorElement.prototype ? function saveAs(blob, name, opts) {
+    var URL = window.URL || window.webkitURL;
     var a = document.createElement('a');
     name = name || blob.name || 'download';
     a.download = name;
@@ -135,7 +118,7 @@
   } // Fallback to using FileReader and a popup
   : function saveAs(blob, name, opts, popup) {
     // Open a popup immediately do go around popup blocker
-    // Mostly only avalible on user interaction and the fileReader is async so...
+    // Mostly only available on user interaction and the fileReader is async so...
     popup = popup || open('', '_blank');
 
     if (popup) {
@@ -144,13 +127,11 @@
 
     if (typeof blob === 'string') return download(blob, name, opts);
     var force = blob.type === 'application/octet-stream';
-
-    var isSafari = /constructor/i.test(_global.HTMLElement) || _global.safari;
-
+    var isSafari = /constructor/i.test(window.HTMLElement) || window.safari;
     var isChromeIOS = /CriOS\/[\d]+/.test(navigator.userAgent);
 
     if ((isChromeIOS || force && isSafari) && typeof FileReader === 'object') {
-      // Safari doesn't allow downloading of blob urls
+      // Safari doesn't allow downloading of blob URLs
       var reader = new FileReader();
 
       reader.onloadend = function () {
@@ -162,7 +143,7 @@
 
       reader.readAsDataURL(blob);
     } else {
-      var URL = _global.URL || _global.webkitURL;
+      var URL = window.URL || window.webkitURL;
       var url = URL.createObjectURL(blob);
       if (popup) popup.location = url;else location.href = url;
       popup = null; // reverse-tabnabbing #460
@@ -171,8 +152,7 @@
         URL.revokeObjectURL(url);
       }, 4E4); // 40s
     }
-  });
-  _global.saveAs = saveAs.saveAs = saveAs;
+  };
 
   if (typeof module !== 'undefined') {
     module.exports = saveAs;
