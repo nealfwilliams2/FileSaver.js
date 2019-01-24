@@ -1,22 +1,3 @@
-/*
-* FileSaver.js
-* A saveAs() FileSaver implementation.
-*
-* By Eli Grey, http://eligrey.com
-*
-* License : https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md (MIT)
-* source  : http://purl.eligrey.com/github/FileSaver.js
-*/
-
-
-// The one and only way of getting global scope in all environments
-// https://stackoverflow.com/q/3277182/1008999
-var _global = typeof window === 'object' && window.window === window
-  ? window : typeof self === 'object' && self.self === self
-  ? self : typeof global === 'object' && global.global === global
-  ? global
-  : this
-
 function bom (blob, opts) {
   if (typeof opts === 'undefined') opts = { autoBom: false }
   else if (typeof opts !== 'object') {
@@ -65,15 +46,10 @@ function click(node) {
   }
 }
 
-var saveAs = _global.saveAs || (
-  // probably in some web worker
-  (typeof window !== 'object' || window !== _global)
-    ? function saveAs () { /* noop */ }
-
-  // Use download attribute first if possible (#193 Lumia mobile)
-  : 'download' in HTMLAnchorElement.prototype
+var saveAs =
+  'download' in HTMLAnchorElement.prototype
   ? function saveAs (blob, name, opts) {
-    var URL = _global.URL || _global.webkitURL
+    var URL = window.URL || window.webkitURL
     var a = document.createElement('a')
     name = name || blob.name || 'download'
 
@@ -133,7 +109,7 @@ var saveAs = _global.saveAs || (
     if (typeof blob === 'string') return download(blob, name, opts)
 
     var force = blob.type === 'application/octet-stream'
-    var isSafari = /constructor/i.test(_global.HTMLElement) || _global.safari
+    var isSafari = /constructor/i.test(window.HTMLElement) || window.safari
     var isChromeIOS = /CriOS\/[\d]+/.test(navigator.userAgent)
 
     if ((isChromeIOS || (force && isSafari)) && typeof FileReader === 'object') {
@@ -148,7 +124,7 @@ var saveAs = _global.saveAs || (
       }
       reader.readAsDataURL(blob)
     } else {
-      var URL = _global.URL || _global.webkitURL
+      var URL = window.URL || window.webkitURL
       var url = URL.createObjectURL(blob)
       if (popup) popup.location = url
       else location.href = url
@@ -156,9 +132,6 @@ var saveAs = _global.saveAs || (
       setTimeout(function () { URL.revokeObjectURL(url) }, 4E4) // 40s
     }
   }
-)
-
-_global.saveAs = saveAs.saveAs = saveAs
 
 if (typeof module !== 'undefined') {
   module.exports = saveAs;
